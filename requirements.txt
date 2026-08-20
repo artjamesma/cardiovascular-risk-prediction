@@ -8,3 +8,7 @@ seaborn
 joblib
 jupyterlab
 ipywidgets
+streamlit
+plotly
+fastapi
+uvicorn
