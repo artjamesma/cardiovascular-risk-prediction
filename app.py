@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import requests
 import plotly.graph_objects as go
 from datetime import datetime
 
@@ -36,6 +37,8 @@ FEATURE_LABELS = {
     "active": "Physical Activity",
     "bmi": "BMI",
 }
+
+API_URL = "http://127.0.0.1:8000/predict"
 
 # ============================================================
 # STYLING
@@ -596,13 +599,48 @@ with tab2:
             active,
         )
 
-        probability = float(
-            model.predict_proba(patient)[0, 1]
-        )
+        api_payload = {
+            "age": float(age),
+            "gender": int(gender),
+            "height_cm": float(height_cm),
+            "weight": float(weight),
+            "ap_hi": int(systolic),
+            "ap_lo": int(diastolic),
+            "cholesterol": int(cholesterol),
+            "gluc": int(glucose),
+            "smoke": int(smoke),
+            "alco": int(alcohol),
+            "active": int(active),
+        }
 
-        prediction = int(probability >= 0.50)
+        try:
+            response = requests.post(
+                API_URL,
+                json=api_payload,
+                timeout=10,
+            )
+            response.raise_for_status()
+            api_result = response.json()
 
-        bmi = patient["bmi"].iloc[0]
+            probability = float(api_result["probability"])
+            prediction = int(api_result["predicted_class"])
+            bmi = float(api_result["calculated_bmi"])
+
+        except requests.exceptions.ConnectionError:
+            st.error(
+                "The FastAPI prediction service is not running. "
+                "Start it with: uvicorn api:app --reload"
+            )
+            st.stop()
+
+        except requests.exceptions.Timeout:
+            st.error("The prediction API timed out. Please try again.")
+            st.stop()
+
+        except (requests.exceptions.RequestException, KeyError, ValueError) as exc:
+            st.error("The prediction API returned an unexpected response.")
+            st.exception(exc)
+            st.stop()
 
         warnings = validate_inputs(patient)
 
