@@ -1,0 +1,26 @@
+{
+    "model_name": "XGBoost Cardiovascular Risk Classifier",
+    "target": "cardio",
+    "features": [
+        "age",
+        "gender",
+        "height",
+        "weight",
+        "ap_hi",
+        "ap_lo",
+        "cholesterol",
+        "gluc",
+        "smoke",
+        "alco",
+        "active",
+        "bmi"
+    ],
+    "default_threshold": 0.5,
+    "test_accuracy": 0.7344920369427678,
+    "test_precision": 0.7551350477114669,
+    "test_recall": 0.6860123420511314,
+    "test_f1": 0.7189160058511048,
+    "test_roc_auc": 0.802215943794141,
+    "training_rows": 55003,
+    "test_rows": 13751
+}
